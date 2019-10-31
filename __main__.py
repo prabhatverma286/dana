@@ -2,6 +2,8 @@ import tkinter as tk
 import tkinter.ttk as ttk
 import cv2
 import PIL.Image, PIL.ImageTk
+import threading
+from environment_simulator import make_environment
 
 Games = [
     "Cartpole",
@@ -12,6 +14,8 @@ Games = [
 
 def start_training():
     print("Hey, this works!")
+    training_thread = threading.Thread(target=make_environment, args=["CartPole-v0"])
+    training_thread.start()
 
 
 class App:
