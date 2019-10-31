@@ -1,5 +1,7 @@
 import argparse
-from agent import RandomAgent
+import os
+
+from agent import RandomAgent, DQNAgent, save_video_and_stats
 
 import gym
 from gym import wrappers, logger
@@ -17,14 +19,16 @@ def make_environment(env_id):
     # directory, including one with existing data -- all monitor files
     # will be namespaced). You can also dump to a tempdir if you'd
     # like: tempfile.mkdtemp().
-    outdir = 'random-agent-results'
-    env = wrappers.Monitor(env, directory=outdir, force=True, mode="evaluation")
+    outdir = os.path.join('random-agent-results', env_id)
+    env = wrappers.Monitor(env, directory=outdir, force=True, video_callable=save_video_and_stats)
     env.seed(0)
-    agent = RandomAgent(env.action_space)
+    agent = DQNAgent(outdir, env)
 
     episode_count = 100
     reward = 0
     done = False
+
+    agent.train()
 
     for i in range(episode_count):
         ob = env.reset()
