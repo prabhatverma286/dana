@@ -53,5 +53,11 @@ class DQNAgent(object):
             callback=self._callback
         )
 
-    def act(self, observation, reward, done):
+    def save(self, save_path):
+        self.act.save(save_path)
+
+    def from_path(self, load_path):
+        self.act = deepq.learn(self.env, network='mlp', total_timesteps=0, load_path=load_path)
+
+    def take_action(self, observation):
         return self.act(observation[None])[0]

@@ -6,7 +6,7 @@ import tkinter.ttk as ttk
 import cv2
 import PIL.Image, PIL.ImageTk
 import threading
-from environment_simulator import make_environment
+from environment_simulator import make_environment, evaluate_agent, get_evaluation_dir, get_training_dir
 
 env = "CartPole-v0"
 Games = [
@@ -14,24 +14,6 @@ Games = [
     "Pong",
     "Breakout"
 ]  # etc
-
-
-def start_training():
-    print("Hey, this works!")
-    training_thread = threading.Thread(target=make_environment, args=[env])
-    training_thread.start()
-
-
-def get_latest_video_from_output_dir(directory_to_scan):
-    list_of_mp4_files = glob.glob(directory_to_scan + "\\*.mp4")
-    latest_modified_mp4_files = sorted(list_of_mp4_files, key=os.path.getctime, reverse=True)
-    if len(latest_modified_mp4_files) < 2:
-        return None, None
-    video_to_display = latest_modified_mp4_files[1]
-    meta_json = video_to_display[:-4] + ".meta.json"
-    with open(meta_json, "r") as fd:
-        episode_number = json.load(fd)["episode_id"]
-    return latest_modified_mp4_files[1], directory_to_scan + "\\" + str(episode_number) + "-meta.json"
 
 
 class App:
@@ -52,12 +34,15 @@ class App:
         self.select_game_menu = ttk.OptionMenu(window, self.select_game_value, *Games)
         self.select_game_menu.grid(row=0, column=1, sticky=tk.W, padx=10, pady=30)
 
-        self.start_training_button = ttk.Button(window, text="Start training", command=start_training)
-        self.start_training_button.grid(row=0, column=2, sticky=tk.E, padx=20, pady=30)
+        self.start_training_button = ttk.Button(window, text="Start training", command=self.start_training)
+        self.start_training_button.grid(row=0, column=2, sticky=tk.E, padx=(20, 5), pady=30)
+
+        self.evaluation_button = ttk.Button(window, text="Evaluate agent", command=self.evaluate)
+        self.evaluation_button.grid(row=0, column=3, sticky=tk.E, padx=(5, 20), pady=30)
 
         # Create a canvas that can fit the above video source size
-        self.canvas = tk.Canvas(master=window, width=400, height=600)
-        self.canvas.grid(row=1, rowspan=100, column=2, padx=20, pady=20, sticky=tk.E)
+        self.canvas = tk.Canvas(master=window, width=600, height=600)
+        self.canvas.grid(row=1, rowspan=100, columnspan=100, column=3, padx=20, pady=20, sticky=tk.E)
 
         self.episode_number_label = tk.Label(master=window, text="Episode number:")
         self.episode_number_label.grid(row=1, column=0, padx=20, pady=(30, 5), sticky=tk.W)
@@ -79,7 +64,7 @@ class App:
 
     def update(self, master):
         if self.vid_playing is None:
-            self.video_source, self.video_metadata = get_latest_video_from_output_dir(os.path.join(self.video_directory, env))
+            self.video_source, self.video_metadata = self.get_latest_video_from_output_dir(self.video_directory)
             if self.video_source is None:
                 self.photo = tk.PhotoImage(file="resources\\default_image.png")
                 self.canvas.create_image(0, 0, image=self.photo, anchor=tk.NW)
@@ -109,6 +94,30 @@ class App:
 
         self.window.after(self.delay, self.update, master)
 
+    def evaluate(self):
+        self.video_directory = get_evaluation_dir(env)
+        self.vid_playing = None
+        self.video_source = None
+
+        evaluation_thread = threading.Thread(target=evaluate_agent, args=[env, 100])
+        evaluation_thread.start()
+
+    def start_training(self):
+        print("Hey, this works!")
+        training_thread = threading.Thread(target=make_environment, args=[env])
+        training_thread.start()
+
+    def get_latest_video_from_output_dir(self, directory_to_scan):
+        list_of_mp4_files = glob.glob(directory_to_scan + "\\*.mp4")
+        latest_modified_mp4_files = sorted(list_of_mp4_files, key=os.path.getctime, reverse=True)
+        if len(latest_modified_mp4_files) < 3:
+            return None, None
+        video_to_display = latest_modified_mp4_files[2]
+        meta_json = video_to_display[:-4] + ".meta.json"
+        with open(meta_json, "r") as fd:
+            episode_number = json.load(fd)["episode_id"]
+        return latest_modified_mp4_files[2], directory_to_scan + "\\" + str(episode_number) + "-meta.json"
+
 
 class MyVideoCapture:
     def __init__(self, video_source=0):
@@ -136,4 +145,4 @@ class MyVideoCapture:
 
 
 # Create a window and pass it to the Application object
-App(tk.Tk(), "Dana - a DQN AgeNt for Atari", "random-agent-results")
+App(tk.Tk(), "Dana - a DQN AgeNt for Atari", get_training_dir(env))
