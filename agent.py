@@ -50,8 +50,9 @@ class DQNAgent(object):
             exploration_fraction=0.1,
             exploration_final_eps=0.02,
             print_freq=10,
-            callback=self._callback
+            callback=self._callback,
         )
+        self.env.close()
 
     def save(self, save_path):
         self.act.save(save_path)
