@@ -5,7 +5,8 @@ from baselines import deepq
 
 
 def save_video_and_stats(episode_number):
-    return episode_number % 25 == 0 and episode_number is not 0
+    return True
+    # return episode_number % 10 == 0 and episode_number is not 0
 
 
 class RandomAgent(object):
@@ -19,16 +20,20 @@ class RandomAgent(object):
 
 
 class DQNAgent(object):
-    def __init__(self, output_dir, env):
+    def __init__(self, output_dir, env, performance_identifier=None):
         self.action_space = env.action_space
         self.act = None
         self.output_dir = output_dir
         self.env = env
+        if performance_identifier is not None:
+            self.performance_identifier = performance_identifier
+        else:
+            self.performance_identifier = "Last Run"
 
     def _callback(self, lcl, _glb):
         if save_video_and_stats(self.env.episode_id):
             # write stats in json
-            file_name = os.path.join(self.output_dir, str(self.env.episode_id) + '-meta.json')
+            file_name = os.path.join(self.output_dir, str(self.env.episode_id - 1) + '-meta.json')
             os.makedirs(os.path.dirname(file_name), exist_ok=True)
             with open(file_name, 'w+') as fd:
                 fd.write(json.dumps({
@@ -37,28 +42,37 @@ class DQNAgent(object):
                 }))
 
         # stop training if reward exceeds 199
-        is_solved = lcl['t'] > 100 and sum(lcl['episode_rewards'][-101:-1]) / 100 >= 199
-        return is_solved
+        if self.env.episode_id > 1000:
+            with open("rewards_summary.json", "a+") as f:
+                f.seek(0)
+                contents = f.read()
+                rewards = {}
+                if contents is not None and (not contents.strip().__eq__("")):
+                    rewards = json.loads(contents)
 
-    def train(self):
+                rewards[self.performance_identifier] = lcl['episode_rewards'][:-1]
+                f.seek(0)
+                f.truncate()
+                f.write(json.dumps(rewards))
+
+            return True
+
+        return False
+
+    def train(self, env, arguments):
         self.act = deepq.learn(
-            self.env,
-            network='mlp',
-            lr=1e-3,
-            total_timesteps=100000,
-            buffer_size=50000,
-            exploration_fraction=0.1,
-            exploration_final_eps=0.02,
-            print_freq=10,
-            callback=self._callback,
+            env,
+            **arguments,
+            callback=self._callback
         )
         self.env.close()
 
     def save(self, save_path):
         self.act.save(save_path)
 
-    def from_path(self, load_path):
-        self.act = deepq.learn(self.env, network='mlp', total_timesteps=0, load_path=load_path)
+    def from_path(self, arguments, load_path):
+        arguments['total_timesteps'] = 0
+        self.act = deepq.learn(self.env, **arguments, load_path=load_path)
 
     def take_action(self, observation):
         return self.act(observation[None])[0]

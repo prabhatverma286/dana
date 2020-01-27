@@ -12,16 +12,16 @@ def save_video_and_stats(episode_number):
     return episode_number % 25 == 0 and episode_number is not 0
 
 
-def main(env_id):
+def main(env_id, arguments):
     logger.set_level(logger.INFO)
     env = gym.make(env_id)
 
-    outdir = os.path.join('agent-evaluation', env_id)
+    outdir = 'agent-evaluation'
     env = wrappers.Monitor(env, directory=outdir, force=True, video_callable=lambda x: True)
     env.seed(0)
 
     agent = DQNAgent(outdir, env)
-    agent.from_path("saved_models\\" + env_id + "_model.pkl")
+    agent.from_path(arguments, "saved_models\\" + env_id + "_model.pkl")
 
     for i in range(100):
         ob = env.reset()
@@ -49,5 +49,7 @@ def main(env_id):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--env_id', help='gym env id')
+    parser.add_argument('--json_arguments', type=json.loads, help='gym env id')
+
     args = parser.parse_args()
-    main(args.env_id)
+    main(args.env_id, args.json_arguments)

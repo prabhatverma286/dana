@@ -19,7 +19,7 @@ def get_latest_video_from_output_dir(directory_to_scan):
 
 
 def get_training_dir(env_id):
-    return os.path.join('random-agent-results', env_id)
+    return os.path.join('agent-training', env_id)
 
 
 def get_evaluation_dir(env_id):

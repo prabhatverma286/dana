@@ -1,0 +1,10 @@
+'blue', 1e-1, 1
+'green', 1e-2, 480
+'red', 1e-3, 1270
+'yellow', 1e-4, 1707
+'black', 1e-5, 0
+'purple', 1e-6, 24
+'pink', 1e-7, 0
+'brown', 1e-8, 326
+'orange', 1e-9, 68
+'teal' 1e-10, 552
