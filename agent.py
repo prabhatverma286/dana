@@ -43,7 +43,7 @@ class DQNAgent(object):
 
         # stop training if reward exceeds 199
         if self.env.episode_id > 1000:
-            with open("rewards_summary.json", "a+") as f:
+            with open("rewards_buffer_size.json", "a+") as f:
                 f.seek(0)
                 contents = f.read()
                 rewards = {}
