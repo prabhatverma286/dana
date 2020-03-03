@@ -5,8 +5,9 @@ from baselines import deepq
 
 
 def save_video_and_stats(episode_number):
-    return True
-    # return episode_number % 10 == 0 and episode_number is not 0
+    if episode_number == 1:
+        return True
+    return episode_number % 5 == 0 and episode_number is not 0
 
 
 class RandomAgent(object):
@@ -33,7 +34,7 @@ class DQNAgent(object):
     def _callback(self, lcl, _glb):
         if save_video_and_stats(self.env.episode_id):
             # write stats in json
-            file_name = os.path.join(self.output_dir, str(self.env.episode_id - 1) + '-meta.json')
+            file_name = os.path.join(self.output_dir, str(self.env.episode_id) + '-meta.json')
             os.makedirs(os.path.dirname(file_name), exist_ok=True)
             with open(file_name, 'w+') as fd:
                 fd.write(json.dumps({

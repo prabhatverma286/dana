@@ -1,3 +1,4 @@
+import glob
 import json
 import os
 import shutil
@@ -14,12 +15,7 @@ import PIL.ImageTk
 import cv2
 
 import default_params
-from Helpers import get_latest_video_from_output_dir
-
-Games = {
-    "Cartpole": "CartPole-v0",
-    "Pong": "PongNoFrameskip-v4"
-}  # etc
+from Helpers import get_latest_video_from_output_dir, envs
 
 default_model_text = "No pre-trained models found"
 
@@ -43,7 +39,7 @@ class App:
         self.select_game_value = tk.StringVar(window)
         self.select_game_value.set("-")  # default value
 
-        self.select_game_menu = ttk.OptionMenu(window, self.select_game_value, None, *Games.keys())
+        self.select_game_menu = ttk.OptionMenu(window, self.select_game_value, None, *envs.keys())
         self.select_game_menu.grid(row=0, column=1, padx=10, pady=30)
 
         self.select_game_button = ttk.Button(master=window, text="Select", command=self.select_environment)
@@ -130,13 +126,13 @@ class App:
         self.training_or_evaluating_text.grid(row=2, column=1, padx=20, pady=20, sticky=tk.W)
         self.toggle_controls(enabled=False)
 
-        params = json.loads(self.parameters_text_box.get("1.0", tk.END))
-
         selected_env = self.select_game_value.get()
         if selected_env.__eq__("-"):
             return
 
-        self.evaluation_process = subprocess.Popen([sys.executable, 'evaluate.py', '--env_id', Games[selected_env], '--json_arguments', json.dumps(params)])
+        params = getattr(default_params, selected_env.lower()) # json.loads(self.parameters_text_box.get("1.0", tk.END))
+
+        self.evaluation_process = subprocess.Popen([sys.executable, 'evaluate.py', '--env_id', envs[selected_env], '--json_arguments', json.dumps(params)])
 
     def start_training(self):
         if os.path.exists('agent-training'):
@@ -156,7 +152,7 @@ class App:
         if selected_env.__eq__("-"):
             return
 
-        self.training_process = subprocess.Popen([sys.executable, 'train.py', '--env_id', Games[selected_env], '--json_arguments', json.dumps(params)])
+        self.training_process = subprocess.Popen([sys.executable, 'train.py', '--env_id', envs[selected_env], '--json_arguments', json.dumps(params)])
 
     def toggle_controls(self, enabled):
         if enabled:
@@ -184,11 +180,12 @@ class App:
 
         self.start_training_button.grid(row=1, column=4, padx=(10, 30), pady=10)
 
-        env_id = Games[selected_env]
+        env_id = envs[selected_env]
         self.trained_model_label.grid(row=1, column=5, padx=(30, 10), pady=10)
 
-        if os.path.exists("saved_models\\" + env_id + "_model.pkl"):
-            self.trained_model_label['text'] = env_id + "_model.pkl"
+        models = glob.glob("saved_models\\*" + selected_env + "*")
+        if len(models) > 0:
+            self.trained_model_label['text'] = models[0]
         else:
             self.trained_model_label['text'] = default_model_text
 

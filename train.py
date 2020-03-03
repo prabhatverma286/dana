@@ -3,25 +3,35 @@ import os
 import sys
 
 import gym
+from baselines.common.atari_wrappers import make_atari, wrap_deepmind
 from gym import wrappers, logger
 import argparse
 
+from gym.wrappers import Monitor
+
+from Helpers import envs, BreakoutMonitor
 from agent import DQNAgent, save_video_and_stats
 
 
 def main(env_id, identifier, arguments):
     logger.set_level(logger.INFO)
 
-    env = gym.make(env_id)
+    if env_id == envs["Cartpole"]:
+        env = gym.make(env_id)
+    else:
+        env = make_atari(env_id)
+        env = wrap_deepmind(env, frame_stack=True, scale=False, clip_rewards=False)
 
-    # You provide the directory to write to (can be an existing
-    # directory, including one with existing data -- all monitor files
-    # will be namespaced). You can also dump to a tempdir if you'd
-    # like: tempfile.mkdtemp().
-    outdir = 'agent-training'
-    env = wrappers.Monitor(env, directory=outdir, force=True, video_callable=save_video_and_stats)
+    out_dir = 'agent-training'
+    os.makedirs(out_dir, exist_ok=True)
+
+    if env_id == envs["Breakout"]:
+        env = BreakoutMonitor(env, directory=out_dir, force=True, video_callable=save_video_and_stats)
+    else:
+        env = Monitor(env, directory=out_dir, force=True, video_callable=save_video_and_stats)
+
     env.seed(0)
-    agent = DQNAgent(outdir, env, identifier)
+    agent = DQNAgent(out_dir, env, identifier)
 
     agent.train(env, arguments)
     agent.save("saved_models\\" + env_id + "_model.pkl")
