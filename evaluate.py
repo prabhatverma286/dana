@@ -15,8 +15,8 @@ from agent import DQNAgent
 def save_video_and_stats(episode_number):
     if episode_number == 1:
         return True
-    return episode_number % 5 == 0 and episode_number is not 0
-    # return True
+    # return episode_number % 5 == 0 and episode_number is not 0
+    return True
 
 
 def main(env_id, arguments):
