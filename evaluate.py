@@ -2,7 +2,8 @@ import json
 import os
 
 import gym
-from baselines.common.atari_wrappers import make_atari, wrap_deepmind
+from baselines.common.atari_wrappers import make_atari, wrap_deepmind, WarpFrame, FrameStack
+from baselines.common.retro_wrappers import make_retro
 from gym import logger
 import argparse
 
@@ -10,13 +11,7 @@ from gym.wrappers import Monitor
 
 from Helpers import BreakoutMonitor, envs
 from agent import DQNAgent
-
-
-def save_video_and_stats(episode_number):
-    if episode_number == 1:
-        return True
-    # return episode_number % 5 == 0 and episode_number is not 0
-    return True
+from keras_dqfd import SonicDiscretizer, AllowBacktracking
 
 
 def main(env_id, arguments):
@@ -24,6 +19,15 @@ def main(env_id, arguments):
 
     if env_id == envs["Cartpole"]:
         env = gym.make(env_id)
+    elif env_id == envs["Sonic_the_HedgeHog"]:
+        env = make_retro(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act1', scenario='contest')
+
+        action_list = [['NOOP'], ['LEFT'], ['RIGHT'], ['LEFT', 'B'], ['RIGHT', 'B'], ['DOWN'], ['B']]
+
+        env = SonicDiscretizer(env, action_list)
+        env = AllowBacktracking(env)
+        env = WarpFrame(env)
+        env = FrameStack(env, 4)
     else:
         env = make_atari(env_id)
         env = wrap_deepmind(env, frame_stack=True, scale=False, clip_rewards=False)
@@ -32,9 +36,10 @@ def main(env_id, arguments):
     os.makedirs(out_dir, exist_ok=True)
 
     if env_id == envs["Breakout"]:
-        env = BreakoutMonitor(env, directory=out_dir, force=True, video_callable=save_video_and_stats)
+        # Wrapper for episodic life in breakout
+        env = BreakoutMonitor(env, directory=out_dir, force=True, video_callable=lambda x: True)
     else:
-        env = Monitor(env, directory=out_dir, force=True, video_callable=save_video_and_stats)
+        env = Monitor(env, directory=out_dir, force=True, video_callable=lambda x: True)
 
     env.seed(0)
 
@@ -49,10 +54,10 @@ def main(env_id, arguments):
             ob, reward, done, _ = env.step(action)
             total_reward += reward
             if done:
-                file_name = os.path.join(out_dir, str(i + 1) + '-meta.json')
+                file_name = os.path.join(out_dir, str(i+1) + '-meta.json')
                 with open(file_name, 'w') as fd:
                     fd.write(json.dumps({
-                        'episode_number': i + 1,
+                        'episode_number': i+1,
                         'episode_score': total_reward
                     }))
                 break

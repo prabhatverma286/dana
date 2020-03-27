@@ -1,8 +1,6 @@
 import glob
 import json
 import os
-import subprocess
-from datetime import datetime
 
 from gym import wrappers
 
@@ -49,5 +47,6 @@ class BreakoutMonitor(wrappers.Monitor):
 envs = {
     "Cartpole": "CartPole-v0",
     "Pong": "PongNoFrameskip-v4",
-    "Breakout": "BreakoutNoFrameskip-v4"
+    "Breakout": "BreakoutNoFrameskip-v4",
+    "Sonic_the_HedgeHog": "SonicTheHedgehog-Genesis"
 }

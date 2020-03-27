@@ -4,13 +4,6 @@ import os
 from baselines import deepq
 
 
-def save_video_and_stats(episode_number):
-    if episode_number == 1:
-        return True
-    # return episode_number % 5 == 0 and episode_number is not 0
-    return True
-
-
 class RandomAgent(object):
     """The world's simplest agent!"""
 
@@ -33,31 +26,14 @@ class DQNAgent(object):
             self.performance_identifier = "Last Run"
 
     def _callback(self, lcl, _glb):
-        if save_video_and_stats(self.env.episode_id):
-            # write stats in json
-            file_name = os.path.join(self.output_dir, str(self.env.episode_id) + '-meta.json')
-            os.makedirs(os.path.dirname(file_name), exist_ok=True)
-            with open(file_name, 'w+') as fd:
-                fd.write(json.dumps({
-                    'episode_number': self.env.episode_id,
-                    'episode_score': lcl['episode_rewards'][-1]
-                }))
-
-        # stop training if reward exceeds 199
-        if self.env.episode_id > 1000:
-            with open("rewards_buffer_size.json", "a+") as f:
-                f.seek(0)
-                contents = f.read()
-                rewards = {}
-                if contents is not None and (not contents.strip().__eq__("")):
-                    rewards = json.loads(contents)
-
-                rewards[self.performance_identifier] = lcl['episode_rewards'][:-1]
-                f.seek(0)
-                f.truncate()
-                f.write(json.dumps(rewards))
-
-            return True
+        # write episode rewards in json to fetch at UI level
+        file_name = os.path.join(self.output_dir, str(self.env.episode_id - 1) + '-meta.json')
+        os.makedirs(os.path.dirname(file_name), exist_ok=True)
+        with open(file_name, 'w+') as fd:
+            fd.write(json.dumps({
+                'episode_number': self.env.episode_id,
+                'episode_score': lcl['episode_rewards'][-1]
+            }))
 
         return False
 

@@ -1,4 +1,4 @@
-import itertools
+# helper file mainly used to plot results
 import json
 
 import matplotlib.pyplot as plt
@@ -19,15 +19,20 @@ import matplotlib.pyplot as plt
 #     plt.xticks(rotation=90)
 
 # plt.show()
+with open("resources\\sonic_episode_rewards_dqfd.json", "r") as f:
+    dueling = json.loads(f.read())["sonic"]
 
-with open("pong_rewards_dueling.json", "r") as f:
-    dueling = json.loads(f.read())["pong"]
+with open("resources\\sonic_episode_rewards_1.json", "r") as f:
+    double = json.loads(f.read())["sonic"]
 
-with open("pong_rewards_simple.json", "r") as f:
-    double = json.loads(f.read())["pong"]
-
-with open("pong_rewards_vanilla.json", "r") as f:
-    vanilla = json.loads(f.read())["pong"]
+# with open("pong_rewards_dueling.json", "r") as f:
+#     dueling = json.loads(f.read())["pong"]
+#
+# with open("pong_rewards_simple.json", "r") as f:
+#     double = json.loads(f.read())["pong"]
+#
+# with open("pong_rewards_vanilla.json", "r") as f:
+#     vanilla = json.loads(f.read())["pong"]
 
 
 # dueling = dueling[0:len(dueling):5]
@@ -35,29 +40,29 @@ with open("pong_rewards_vanilla.json", "r") as f:
 # vanilla = vanilla[0:len(vanilla):5]
 
 
-avg_dueling = []
+# avg_dueling = []
+#
+# for i in range(0, len(dueling), 5):
+#     avg_dueling.append((dueling[i] + dueling[i+1] + dueling[i+2] + dueling[i+3] + dueling[i+4])/5)
+#
+# avg_double = []
+#
+# for i in range(0, len(double), 5):
+#     avg_double.append((double[i] + double[i+1] + double[i+2] + double[i+3] + double[i+4])/5)
+#
+# avg_vanilla = []
+#
+# for i in range(0, len(vanilla) - 5, 5):
+#     avg_vanilla.append((vanilla[i] + vanilla[i+1] + vanilla[i+2] + vanilla[i+3] + vanilla[i+4])/5)
 
-for i in range(0, len(dueling), 5):
-    avg_dueling.append((dueling[i] + dueling[i+1] + dueling[i+2] + dueling[i+3] + dueling[i+4])/5)
-
-avg_double = []
-
-for i in range(0, len(double), 5):
-    avg_double.append((double[i] + double[i+1] + double[i+2] + double[i+3] + double[i+4])/5)
-
-avg_vanilla = []
-
-for i in range(0, len(vanilla) - 5, 5):
-    avg_vanilla.append((vanilla[i] + vanilla[i+1] + vanilla[i+2] + vanilla[i+3] + vanilla[i+4])/5)
-
-
-double = avg_double
-dueling = avg_dueling
-vanilla = avg_vanilla
+#
+# double = avg_double
+# dueling = avg_dueling
+# vanilla = avg_vanilla
 
 plt.plot(range(len(dueling)), dueling, label="Dueling Double")
 plt.plot(range(len(double)), double, label="Double")
-plt.plot(range(len(vanilla)), vanilla, label="Vanilla")
+# plt.plot(range(len(vanilla)), vanilla, label="Vanilla")
 
 
 # plt.xlabel("Train Frequency")
