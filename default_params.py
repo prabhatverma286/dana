@@ -15,10 +15,10 @@ cartpole = {'network': 'mlp',
             'total_timesteps': 100000,
             'buffer_size': 50000,
             'exploration_fraction': 0.1,
-            'exploration_final_eps': 0.02,
+            'exploration_final_eps': 0.03,
             'train_freq': 3,
-            'target_network_update_freq': 1000,
-            'gamma': 0.99
+            'target_network_update_freq': 800,
+            'gamma': 0.97
 }
 
 pong = {

@@ -87,7 +87,7 @@ class App:
         self.select_game_value.set("No Environment Selected")  # default value
 
         self.select_game_value.trace_variable('w', callback=self.select_environment)
-        self.select_game_menu = ttk.OptionMenu(self.game_selection_frame, self.select_game_value, None, *envs.keys())
+        self.select_game_menu = ttk.OptionMenu(self.game_selection_frame, self.select_game_value, None, *[x.replace('_', ' ') for x in envs.keys()])
         self.select_game_menu.grid(row=0, column=1, padx=100, pady=5, sticky=tk.W)
 
         self.mode = tk.IntVar()
@@ -204,7 +204,6 @@ class App:
         self.trained_model_label = ttk.Label(self.trained_model_frame, text=default_model_text)
 
         # Canvas to show the video ################################################################################
-        # Create a canvas that can fit the above video source size
         self.canvas = tk.Canvas(master=self.agent_performance_frame, width=320, height=350)
         self.episode_number_label = tk.Label(master=self.agent_performance_frame, text="Episode number:")
         self.episode_reward_label = tk.Label(master=self.agent_performance_frame, text="Episode reward:")
@@ -548,8 +547,11 @@ class App:
         self.toggle_controls(enabled=False)
 
         selected_env = self.select_game_value.get()
+
         if selected_env.__eq__("No Environment Selected"):
             return
+
+        selected_env = selected_env.replace(' ', '_')
 
         params = getattr(default_params,
                          selected_env.lower())  # json.loads(self.parameters_text_box.get("1.0", tk.END))
@@ -593,15 +595,18 @@ class App:
                 params[k] = v
 
         selected_env = self.select_game_value.get()
+
         if selected_env.__eq__("No Environment Selected"):
             return
+
+        selected_env = selected_env.replace(' ', '_')
 
         for t in self.main_nb.tabs():
             if self.main_nb.tab(t, "text") == 'DQfD':
                 self.main_nb.tab(t, state='disabled')
 
         self.training_process = subprocess.Popen(
-            [sys.executable, 'train.py', '--env_id', envs[selected_env], '--json_arguments', json.dumps(params)])
+            [sys.executable, 'train.py', '--env_id', envs[selected_env].replace(' ', '_'), '--json_arguments', json.dumps(params)])
 
     def stop_and_reset(self):
         if self.training_process is not None:
@@ -656,6 +661,8 @@ class App:
         selected_env = self.select_game_value.get()
         if selected_env.__eq__("-"):
             return
+
+        selected_env = selected_env.replace(' ', '_')
 
         if self.mode.get() == 1:
 

@@ -9,7 +9,7 @@ import argparse
 
 from gym.wrappers import Monitor
 
-from Helpers import envs, BreakoutMonitor
+from Helpers import envs, BreakoutMonitor, disable_view_window
 from agent import DQNAgent
 from baselines.common.retro_wrappers import make_retro
 
@@ -20,6 +20,7 @@ def main(env_id, identifier, arguments):
     logger.set_level(logger.INFO)
 
     if env_id == envs["Cartpole"]:
+        disable_view_window()
         env = gym.make(env_id)
     elif env_id == envs["Sonic_the_HedgeHog"]:
         env = make_retro(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act1', scenario='contest')
@@ -53,7 +54,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--env_id', help='gym env id')
     parser.add_argument('--identifier', default=None, help='gym env id')
-    parser.add_argument('--json_arguments', type=json.loads, help='gym env id')
+    parser.add_argument('--json_arguments', type=json.loads, help='json dictionary of the training arguments')
 
     args = parser.parse_args()
     main(args.env_id, args.identifier, args.json_arguments)

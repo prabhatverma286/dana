@@ -73,7 +73,7 @@ def main(env_id, arguments):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--env_id', help='gym env id')
-    parser.add_argument('--json_arguments', type=json.loads, help='gym env id')
+    parser.add_argument('--json_arguments', type=json.loads, help='json dictionary of the training arguments')
 
     args = parser.parse_args()
     main(args.env_id, args.json_arguments)

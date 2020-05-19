@@ -29,6 +29,16 @@ def get_evaluation_dir(env_id):
     return os.path.join('agent-evaluation', env_id)
 
 
+def disable_view_window():
+    from gym.envs.classic_control import rendering
+    org_constructor = rendering.Viewer.__init__
+
+    def constructor(self, *args, **kwargs):
+        org_constructor(self, *args, **kwargs)
+        self.window.set_visible(visible=False)
+
+    rendering.Viewer.__init__ = constructor
+
 class BreakoutMonitor(wrappers.Monitor):
     def __init__(self, env, directory, **kwargs):
         super().__init__(env, directory, **kwargs)

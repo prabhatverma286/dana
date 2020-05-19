@@ -9,7 +9,7 @@ import argparse
 
 from gym.wrappers import Monitor
 
-from Helpers import BreakoutMonitor, envs
+from Helpers import BreakoutMonitor, envs, disable_view_window
 from agent import DQNAgent
 from keras_dqfd import SonicDiscretizer, AllowBacktracking
 
@@ -18,6 +18,7 @@ def main(env_id, arguments):
     logger.set_level(logger.INFO)
 
     if env_id == envs["Cartpole"]:
+        disable_view_window()
         env = gym.make(env_id)
     elif env_id == envs["Sonic_the_HedgeHog"]:
         env = make_retro(game='SonicTheHedgehog-Genesis', state='GreenHillZone.Act1', scenario='contest')
@@ -67,7 +68,7 @@ def main(env_id, arguments):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--env_id', help='gym env id')
-    parser.add_argument('--json_arguments', type=json.loads, help='gym env id')
+    parser.add_argument('--json_arguments', type=json.loads, help='json dictionary of the training arguments')
 
     args = parser.parse_args()
     main(args.env_id, args.json_arguments)
