@@ -20,23 +20,23 @@ The author recommends the use of anaconda environments to manage different pytho
     > conda activate dana
 5. Make sure that pip is installed
     >conda install pip
-6. Use pip to install the requirements listed in requirements.txt
+6. Navigate to the project directory. Use pip to install the requirements listed in requirements.txt
     >pip install -r requirements.txt
 7. Package atari-py needs a specific version to work with windows. Use the following command.
     >pip install --no-index -f https://github.com/Kojoley/atari-py/releases atari_py
-8. Install OpenAI Gym
+8. Navigate to the base directory. Install OpenAI Gym
     ```
     git clone https://github.com/openai/gym.git
     cd gym
     pip install -e .
     ```
-9. Install OpenAI Baselines
+9. Navigate to the base directory. Install OpenAI Baselines
     ```
     git clone https://github.com/openai/baselines.git
     cd baselines 
     pip install -e .
     ```
- 10. Install the retro-contest
+ 10. Navigate to the base directory. Install the retro-contest
       ```
       git clone --recursive https://github.com/openai/retro-contest.git
       cd retro-contest
